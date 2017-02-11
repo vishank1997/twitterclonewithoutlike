@@ -1,0 +1,21 @@
+<h1>Welcome, <%= user.name %></h1><!--most of the app is executed here -->
+<form action = "/newtweet" method = "POST">
+<input type = "text" name = "content">
+<input type = "submit" value="Tweet">
+</form>
+<% tweet.each do |tweet| %>
+<%= tweet.content%><%=user.email%>
+
+<%end%>
+<% user1.each do |user1| %>
+<form action = "/profile" method = "GET">
+<input type = "hidden" name = "id" value = "<%= user1.id %>">
+<button><%= user1.email %></button>
+</form>
+<% end %>
+<% follow.each do |follow| %>
+<%= follow.email2 %>
+<% end %>	
+<form action="/logout" method="POST">
+	<button>Log Out</button>
+</form>
