@@ -32,7 +32,18 @@ class Follow 						#the '1' against the name of data variable is for follower
 	property :user_id2, Integer
 end
 
+class Like
+	include DataMapper::Resource
+	property :name1, String
+	property :name2, String
+	property :user_id1, Integer
+	property :user_id2, Integer
+	property :tweet_id, Integer
+	property :id, Serial
+end
+
 DataMapper.finalize
+Like.auto_upgrade!
 User.auto_upgrade!
 Tweet.auto_upgrade!
 Follow.auto_upgrade!
@@ -46,8 +57,34 @@ get '/' do
 	end
 		tweet = Tweet.all
 		user1 = User.all
+		likes = Like.all
+
 		follow = Follow.all(user_id1: session[:user_id]) 
-	erb :index, locals: {user: user, tweet: tweet, user1: user1, follow: follow}
+	erb :index, locals: {user: user, tweet: tweet, user1: user1, follow: follow, likes: likes}
+end
+
+post '/like' do
+	id = params[:id]					#the user1 be the person currently signed in
+	tweet = Tweet.get(id)
+	user1 = User.get(session[:user_id]) #liking the other persons tweet
+	user2 = User.get(tweet.user_id)
+	like = Like.new						#the user2 be the person who wrote the tweet 
+	like.tweet_id = tweet.id
+	like.name1 = user1.name
+	like.name2 = user2.name		
+	like.user_id1 =	session[:user_id]
+	like.user_id2 =	tweet.user_id
+	tweet.likes = tweet.likes + 1
+	tweet.save
+	like.save
+	redirect '/'
+end
+
+post '/unlike' do
+	like=Like.all(user_id1: session[:user_id], tweet_id: params[:id])
+	like.destroy
+	like.save
+	redirect '/'
 end
 
 get '/profile' do
